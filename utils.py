@@ -24,10 +24,10 @@ def get_cart_location(screen_width):
 
 def get_screen():
     # gym要求的返回屏幕是400x600x3，但有时更大，如800x1200x3。 将其转换为torch order（CHW）。
-    # screen = env.render(mode='rgb_array').transpose((2, 0, 1))
-    env.render_mode = 'rgb_array'
     screen = env.render()
-    # cart位于下半部分，因此不包括屏幕的顶部和底部
+    screen = np.transpose(screen, [2, 0, 1])
+
+    # # cart位于下半部分，因此不包括屏幕的顶部和底部
     _, screen_height, screen_width = screen.shape
     screen = screen[:, int(screen_height*0.4):int(screen_height * 0.8)]
     view_width = int(screen_width * 0.6)
@@ -44,9 +44,7 @@ def get_screen():
     # 转换为float类型，重新缩放，转换为torch张量
     # (this doesn't require a copy)
     screen = np.ascontiguousarray(screen, dtype=np.float32) / 255
-    screen = torch.from_numpy(screen.transpose((2, 0, 1)))
+    screen = torch.from_numpy(screen)
     # 调整大小并添加batch维度（BCHW）
     print(screen.size())
     return resize(screen).unsqueeze(0).to(device)
-
-
